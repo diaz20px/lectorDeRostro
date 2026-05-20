@@ -6,9 +6,17 @@ interfaz gráfica
 
 =================  cv 
 
-import cv2
-import os
-import numpy as np
+== pip install opencv-python mediapipe customtkinter pillow numpy
+
+pip install opencv-python
+
+pip install mediapipe
+
+pip install customtkinter
+
+pip install pillow
+
+pip install numpy
 
 # ==========================
 # CARGAR ROSTRO GUARDADO
