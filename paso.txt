@@ -1,0 +1,127 @@
+guardar usuarios
+reconocimiento por imágenes
+login biométrico
+base de datos
+interfaz gráfica
+
+=================  cv 
+
+import cv2
+import os
+import numpy as np
+
+# ==========================
+# CARGAR ROSTRO GUARDADO
+# ==========================
+
+ruta_rostro = "rostros/wilinton.jpeg"
+
+imagen_usuario = cv2.imread(ruta_rostro)
+
+# Detector facial
+clasificador = cv2.CascadeClassifier(
+    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+)
+
+# Convertir a gris
+gris_usuario = cv2.cvtColor(imagen_usuario, cv2.COLOR_BGR2GRAY)
+
+# Detectar rostro en imagen guardada
+rostros_usuario = clasificador.detectMultiScale(
+    gris_usuario,
+    scaleFactor=1.1,
+    minNeighbors=5
+)
+
+# Extraer cara del usuario
+usuario_face = None
+
+for (x, y, w, h) in rostros_usuario:
+
+    usuario_face = gris_usuario[y:y+h, x:x+w]
+
+    usuario_face = cv2.resize(usuario_face, (200, 200))
+
+    break
+
+print("Usuario cargado: wilinton")
+
+# ==========================
+# INICIAR CAMARA
+# ==========================
+
+camara = cv2.VideoCapture(0)
+
+while True:
+
+    ret, frame = camara.read()
+
+    if not ret:
+        break
+
+    gris = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    rostros = clasificador.detectMultiScale(
+        gris,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(30, 30)
+    )
+
+    for (x, y, w, h) in rostros:
+
+        # Extraer rostro actual
+        rostro_actual = gris[y:y+h, x:x+w]
+
+        rostro_actual = cv2.resize(rostro_actual, (200, 200))
+
+        # Comparar rostros
+        diferencia = cv2.absdiff(usuario_face, rostro_actual)
+
+        resultado = np.mean(diferencia)
+
+        nombre = "Desconocido"
+
+        # Mientras menor el número, más parecido
+        if resultado < 50:
+            nombre = "wilinton"
+
+        # Dibujar rectángulo
+        cv2.rectangle(
+            frame,
+            (x, y),
+            (x+w, y+h),
+            (0,255,0),
+            2
+        )
+
+        # Mostrar nombre
+        cv2.putText(
+            frame,
+            nombre,
+            (x, y - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0,255,0),
+            2
+        )
+
+        # Mostrar precisión
+        cv2.putText(
+            frame,
+            f"Dif: {resultado:.2f}",
+            (x, y + h + 25),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (255,255,0),
+            2
+        )
+
+    cv2.imshow("Lector Biometrico", frame)
+
+    # Salir con Q
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+camara.release()
+cv2.destroyAllWindows()
