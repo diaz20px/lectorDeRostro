@@ -18,6 +18,8 @@ pip install pillow
 
 pip install numpy
 
+pip install flask flask-cors
+
 # ==========================
 # CARGAR ROSTRO GUARDADO
 # ==========================
